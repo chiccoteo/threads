@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: user
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+      password: threads123
+      username: user

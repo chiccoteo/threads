@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="uz.mf.user" target="11" />
+      <module name="uz.mf.user.main" target="11" />
+      <module name="uz.mf.user.test" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
