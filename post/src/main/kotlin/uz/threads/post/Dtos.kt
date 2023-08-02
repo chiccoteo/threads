@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class BaseMessage(val code: Int?, val message: String?)
+data class BaseMessage(val code: Int? = null, val message: String? = null)
 
 data class ThreadCreateDto(
     val text: String?,

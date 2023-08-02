@@ -1,4 +1,4 @@
-package uz.threads.post
+package uz.threads.user
 
 import org.springframework.security.core.context.SecurityContextHolder
 

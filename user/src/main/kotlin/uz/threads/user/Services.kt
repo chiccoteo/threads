@@ -3,6 +3,7 @@ package uz.threads.user
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -24,6 +25,9 @@ interface UserService {
     fun getById(id: Long): UserGetDto
     fun delete(id: Long)
     fun existsById(id: Long): Boolean
+    fun findByUsername(username: String): UserAuthDto
+    fun getUser(): UserGetDto
+    fun isActive(username: String): Boolean
 }
 
 @FeignClient(name = "subscription")
@@ -69,10 +73,12 @@ class CategoryServiceImpl(
 @Service
 class UserServiceImpl(
     private val userRepo: UserRepository,
+    private val roleRepo: RoleRepository,
     private val categoryRepo: CategoryRepository,
     private val genderRepo: GenderRepository,
     private val entityManager: EntityManager,
-    private val subscriptionService: SubscriptionService
+    private val subscriptionService: SubscriptionService,
+    private val passwordEncoder: BCryptPasswordEncoder
 ) : UserService {
     override fun create(dto: UserCreateDto) {
         if (userRepo.existsByUsernameAndDeletedFalse(dto.username))
@@ -84,7 +90,7 @@ class UserServiceImpl(
             if (it.startsWith("+"))
                 dto.phoneNumber = it.substring(1)
         }
-        userRepo.save(dto.toEntity())
+        userRepo.save(dto.toEntity(passwordEncoder.encode(dto.password), roleRepo.findByNameAndDeletedFalse(RoleName.USER)!!))
     }
 
     override fun update(id: Long, dto: UserUpdateDto) {
@@ -139,5 +145,22 @@ class UserServiceImpl(
 
     override fun existsById(id: Long): Boolean {
         return userRepo.existsByIdAndDeletedFalse(id)
+    }
+
+    override fun findByUsername(username: String): UserAuthDto {
+        return userRepo.findByUsernameAndDeletedFalse(username)?.run {
+            UserAuthDto.toDto(this)
+        } ?: throw UserNotFoundException()
+    }
+
+    override fun getUser(): UserGetDto {
+        val user = userRepo.findByIdAndDeletedFalse(userId()) ?: throw UserNotFoundException()
+        return UserGetDto.toDto(user)
+    }
+
+    override fun isActive(username: String): Boolean {
+        return userRepo.findByUsernameAndDeletedFalse(username)?.run {
+            this.active
+        } ?: throw UserNotFoundException()
     }
 }

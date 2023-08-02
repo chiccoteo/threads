@@ -16,7 +16,7 @@ interface SubscriptionService {
     fun getFollowersByUserId(userId: Long): List<UserGetDto>?
 }
 
-@FeignClient(name = "user")
+@FeignClient(name = "user", configuration = [Auth2TokenConfiguration::class])
 interface UserService {
     @GetMapping("internal/exists/{id}")
     fun existsById(@PathVariable id: Long): Boolean

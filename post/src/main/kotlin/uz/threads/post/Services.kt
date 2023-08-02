@@ -13,16 +13,19 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.multipart.MultipartFile
 import javax.persistence.EntityManager
 
-@FeignClient(name = "user")
+@FeignClient(name = "user", configuration = [Auth2TokenConfiguration::class])
 interface UserService {
     @GetMapping("internal/exists/{id}")
     fun existsById(@PathVariable id: Long): Boolean
 
     @GetMapping("{id}")
     fun getUserById(@PathVariable id: Long): UserGetDto
+
+    @GetMapping("get")
+    fun getUser(): UserGetDto
 }
 
-@FeignClient(name = "subscription")
+@FeignClient(name = "subscription", configuration = [Auth2TokenConfiguration::class])
 interface SubscriptionService {
     @GetMapping("internal/{userId}")
     fun getFollowers(@PathVariable userId: Long): List<UserGetDto>?
@@ -87,18 +90,18 @@ class ThreadServiceImpl(
     }
 
     override fun getByUser(userId: Long, pageable: Pageable): Page<ThreadGetDto>? {
-        if (!userService.existsById(userId)) throw UserNotFoundException()
+//        if (!userService.existsById(userId)) throw UserNotFoundException()
         val followersId = mutableListOf<Long>()
         val attachmentsId = mutableListOf<Long>()
         subscriptionService.getFollowers(userId)?.forEach {
             followersId.add(it.id)
         }
-        return threadRepo.getThreadsByOwner(userId, followersId, pageable)?.map {
+        return threadRepo.getThreadsByOwner(userId, followersId, pageable).map {
             attachmentRepo.findAllByThreadIdAndDeletedFalse(it.getId())?.forEach { attachment ->
                 attachmentsId.add(attachment.id!!)
             }
             seenThread(userId, it.getId())
-            ThreadGetDto.toDto(it, userService.getUserById(it.getOwnerId()).username, attachmentsId)
+            ThreadGetDto.toDto(it, userService.getUser().username, attachmentsId)
         }
     }
 
@@ -144,6 +147,7 @@ class LikeServiceImpl(
     private val likeRepo: LikeRepository,
     private val threadRepo: ThreadRepository,
     private val replyRepo: ReplyRepository,
+    private val seenThreadRepo: SeenThreadRepository,
     private val userService: UserService
 ) : LikeService {
     override fun create(dto: LikeDto) {
@@ -156,7 +160,13 @@ class LikeServiceImpl(
                 replyRepo.findByIdAndDeletedFalse(this) ?: throw ReplyNotFoundException()
             }
             likeRepo.save(toEntity(thread, reply))
+            seenThread(userId, threadId!!)
         }
+    }
+
+    private fun seenThread(userId: Long, threadId: Long) {
+        val thread = threadRepo.findByIdAndDeletedFalse(threadId) ?: throw ThreadNotFoundException()
+        seenThreadRepo.save(SeenThread(thread, userId))
     }
 
     override fun getLikesByThreadId(threadId: Long, pageable: Pageable): Page<UserGetDto>? {

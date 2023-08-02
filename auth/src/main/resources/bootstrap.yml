@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: auth
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+      password: threads123
+      username: user
+  profiles:
+#    active: local
+    active: dev

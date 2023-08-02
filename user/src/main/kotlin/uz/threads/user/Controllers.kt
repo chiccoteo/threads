@@ -90,6 +90,9 @@ class UserController(
     @GetMapping("{id}")
     fun getById(@PathVariable id: Long) = service.getById(id)
 
+    @GetMapping("get")
+    fun getUser() = service.getUser()
+
     @DeleteMapping("{id}")
     fun delete(@PathVariable id: Long) = service.delete(id)
 }
@@ -101,4 +104,10 @@ class UserInternalController(
 ) {
     @GetMapping("exists/{id}")
     fun existsById(@PathVariable id: Long) = service.existsById(id)
+
+    @GetMapping("find")
+    fun findUser(username: String) = service.findByUsername(username)
+
+    @GetMapping("is-active")
+    fun isActive(username: String): Boolean = service.isActive(username)
 }

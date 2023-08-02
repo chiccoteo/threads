@@ -55,4 +55,10 @@ interface GenderRepository : BaseRepository<Gender> {
 interface UserRepository : BaseRepository<User> {
     fun existsByIdAndDeletedFalse(id: Long): Boolean
     fun existsByUsernameAndDeletedFalse(username: String): Boolean
+    fun findByUsernameAndDeletedFalse(username: String):User?
+}
+
+interface RoleRepository : BaseRepository<Role> {
+    fun findByNameAndDeletedFalse(name: RoleName): Role?
+
 }

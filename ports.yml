@@ -3,4 +3,5 @@ discovery: 8761
 gateway: 8080
 user: 8270
 post: 8280
+auth: 8081
 subscription: 8290

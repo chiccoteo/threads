@@ -34,11 +34,35 @@ class User(
     @Column(length = 128) var bio: String? = null,
     @ManyToOne var profileCategory: Category? = null,
     @ManyToOne var gender: Gender? = null,
+    @ManyToOne val role: Role?,
     @Column(length = 128, nullable = false) var name: String,
     @Column(length = 128, unique = true, nullable = false) var username: String,
-    @Column(length = 128, nullable = false) var password: String
+    @Column(length = 128, nullable = false) var password: String,
+    @ColumnDefault(value = "true") var active: Boolean = true
 ) : BaseEntity() {
-    constructor(phoneNumber: String?, email: String?, name: String, username: String, password: String) : this(
-        phoneNumber, email, null, null, null, name, username, password
+    constructor(
+        phoneNumber: String?,
+        email: String?,
+        name: String,
+        username: String,
+        password: String,
+        role: Role
+    ) : this(
+        phoneNumber, email, null, null, null, role, name, username, password
+    )
+
+    constructor(
+        phoneNumber: String?,
+        email: String?,
+        name: String,
+        username: String,
+        password: String,
+    ) : this(
+        phoneNumber, email, null, null, null, null, name, username, password
     )
 }
+
+@Entity
+class Role(
+    @Enumerated(EnumType.STRING) val name: RoleName
+) : BaseEntity()

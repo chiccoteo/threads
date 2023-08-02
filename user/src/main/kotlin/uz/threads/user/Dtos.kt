@@ -29,7 +29,7 @@ data class UserCreateDto(
     @field:NotBlank(message = "username field is not blank") val username: String,
     @field:NotBlank(message = "password field is not blank") val password: String
 ) {
-    fun toEntity() = User(phoneNumber, email, name, username, password)
+    fun toEntity(password: String, role: Role) = User(phoneNumber, email, name, username, password, role)
 }
 
 data class UserUpdateDto(
@@ -68,6 +68,28 @@ data class UserGetDto(
                 gender.toString(),
                 name,
                 username
+            )
+        }
+    }
+}
+
+data class UserAuthDto(
+    var id: Long,
+    var username: String,
+    var name: String? = null,
+    var password: String,
+    var role: String,
+    var active: Boolean
+) {
+    companion object {
+        fun toDto(user: User) = user.run {
+            UserAuthDto(
+                id!!,
+                username,
+                name,
+                password,
+                role?.name?.name!!,
+                active
             )
         }
     }

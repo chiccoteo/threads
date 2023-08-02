@@ -48,18 +48,18 @@ interface ThreadRepository : BaseRepository<Thread> {
     @Query(
         value = """select t.id,
        t.text,
-       t.owner_id,
+       t.owner_id                as ownerId,
        (select count(id)
-        from t_post."like"
-        where thread_id = t.id) as countLikes,
+        from threads.t_post."like"
+        where thread_id = t.id)  as countLikes,
        (select count(id)
-        from t_post.reply_content
-        where thread_id = t.id) as countReplies,
-       t.created_date,
-       t.permission_for_reply_id
+        from threads.t_post.reply_content
+        where thread_id = t.id)  as countReplies,
+       t.created_date            as createdDate,
+       t.permission_for_reply_id as permissionForReplyId
 from threads.t_post.thread as t
-         join t_post.seen_thread st on st.thread_id != t.id or st.user_id != :userId
 where t.owner_id in (:ids)
+  and t.id not in (select thread_id from threads.t_post.seen_thread where user_id = :userId)
 group by t.id, t.text, t.created_date, t.permission_for_reply_id, t.owner_id
 order by t.created_date""", nativeQuery = true
     )
@@ -67,7 +67,7 @@ order by t.created_date""", nativeQuery = true
         @Param(value = "userId") userId: Long,
         @Param(value = "ids") ids: List<Long>,
         pageable: Pageable
-    ): Page<ThreadGetDtoInterface>?
+    ): Page<ThreadGetDtoInterface>
 
     fun existsByIdAndDeletedFalse(id: Long): Boolean
 }
@@ -110,5 +110,5 @@ interface ReplyContentRepository : BaseRepository<ReplyContent> {
 }
 
 interface SeenThreadRepository : BaseRepository<SeenThread> {
-
+    fun existsByUserIdAndThreadId(userId: Long, threadId: Long): Boolean
 }

@@ -1,12 +1,10 @@
 package uz.threads.user
 
 import org.apache.commons.logging.LogFactory
-import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.context.support.ResourceBundleMessageSource
-import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -50,19 +48,5 @@ class HeaderLocaleChangeInterceptor(private val headerName: String) : HandlerInt
             LocaleContextHolder.setLocale(Locale("uz"))
         }
         return true
-    }
-}
-
-@Component
-class DataLoader(
-    private val genderRepo: GenderRepository
-) : CommandLineRunner {
-    override fun run(vararg args: String?) {
-        if (!genderRepo.existsByNameAndDeletedFalse(GenderName.CUSTOM))
-            genderRepo.save(Gender(GenderName.CUSTOM))
-        if (!genderRepo.existsByNameAndDeletedFalse(GenderName.MALE))
-            genderRepo.save(Gender(GenderName.MALE))
-        if (!genderRepo.existsByNameAndDeletedFalse(GenderName.FEMALE))
-            genderRepo.save(Gender(GenderName.FEMALE))
     }
 }

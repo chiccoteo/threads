@@ -1,5 +1,11 @@
 package uz.threads.user
 
+enum class RoleName{
+    DEVELOPER,
+    ADMIN,
+    USER
+}
+
 enum class GenderName {
     MALE,
     FEMALE,

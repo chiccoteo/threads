@@ -15,6 +15,7 @@ zuul:
   routes:
     user: /api/v1/user/**
     post: /api/v1/post/**
+    auth: /api/v1/auth/**
     subscription: /api/v1/subscription/**
 
 hystrix:

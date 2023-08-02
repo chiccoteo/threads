@@ -1,0 +1,32 @@
+variables:
+  SERVICE: auth-service
+  SERVICE_PORT: 8084
+  HOST_PORT: 8084
+  REGISTRY: dckreg
+  CTNR_PMS: --network=d_business
+
+stages:
+  - build
+  - deploy
+
+build-prod:
+  stage: build
+  tags:
+    - prod
+  script:
+    - docker build --build-arg SPRING_PROFILES_ACTIVE=${CI_COMMIT_REF_NAME} -t ${REGISTRY}/${SERVICE} .
+  only:
+    - prod  
+
+deploy-prod:
+  
+  stage: deploy
+  tags:
+    - prod
+  script:
+    - docker container rm -f ${SERVICE} || true
+    - docker run -d --env-file ${AUTH} --restart always -e TZ=Asia/Tashkent --name ${SERVICE} ${CTNR_PMS} ${REGISTRY}/${SERVICE}
+#    - docker run -d -p ${HOST_PORT}:${SERVICE_PORT} --restart always -e TZ=Asia/Tashkent --name ${SERVICE} ${CTNR_PMS} ${REGISTRY}/${SERVICE}
+  only:
+    - prod
+###

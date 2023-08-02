@@ -1,0 +1,16 @@
+security:
+  oauth2:
+    client:
+      client-id: threads-client
+      client-secret: threads12345678
+      accessTokenUri: http://auth/oauth/token
+    resource:
+      user-info-uri: http://auth/user/current
+      token-info-uri: http://auth/oauth/check_token
+      prefer-token-info: false
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
